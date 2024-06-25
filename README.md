@@ -1,6 +1,6 @@
-# DataDriven Insights
+# Insightful Bids 
 
-DataDriven Insights is a dynamic web application designed to automate and streamline the process of extracting, analyzing, and visualizing data from various online sources. Utilizing a React front-end for a responsive user interface, the application integrates with a Flask-based API to handle server-side operations, while Scrapy is used for efficient data scraping.
+Insightful Bids is a dynamic web application designed to automate and streamline the process of extracting, analyzing, and visualizing data from various online sources. Utilizing a React front-end for a responsive user interface, the application integrates with a Flask-based API to handle server-side operations, while Scrapy is used for efficient data scraping.
 
 ## Key Features
 
