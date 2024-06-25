@@ -6,9 +6,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from procurement_project.items import NoticeItem
 from selenium.webdriver.common.by import By
 import time
-from procurement_project.items import NoticeItem
+import json
+
 
 class UNGMSpider(scrapy.Spider):
     name = 'ungm_spider'
@@ -16,12 +18,17 @@ class UNGMSpider(scrapy.Spider):
     start_urls = ['https://www.ungm.org/Public/Notice']
     LOG_LEVEL = 'DEBUG'    
 
-    def __init__(self):
-        super(UNGMSpider, self).__init__()
+    def __init__(self, numbers, *args, **kwargs):
+        super(UNGMSpider, self).__init__(*args, **kwargs)
         options = Options()
         options.add_argument('log-level=1')
         service = Service('C:/Program Files (x86)/chromedriver.exe')
         self.driver = webdriver.Chrome(service=service, options=options)
+        try:
+            self.numbers = json.loads(numbers)
+        except json.JSONDecodeError:
+            self.numbers = []
+        
         self.BASE_URL = "https://www.ungm.org"
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -31,6 +38,7 @@ class UNGMSpider(scrapy.Spider):
 
 
     def scroll_down(self):
+        print("Parsed numbers:", self.numbers)
         i = 0
         last_height = self.driver.execute_script("return document.body.scrollHeight")
         while i < 4:
@@ -44,7 +52,6 @@ class UNGMSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-        # Click on the checkboxes
         checkboxes = ['#RequestForProposal', '#RequestForPreQualification', '#InvitationToBid', '#NotSet', '#RequestForEoi', 
                       '#RequestForQuotation', '#RequestForInformation', '#GrantSupportCallForProposal', '#PreBidNotice', '#IndividualConsultant']
         for checkbox in checkboxes:
@@ -56,7 +63,7 @@ class UNGMSpider(scrapy.Spider):
         
         # Input and submit filter codes
         filter_codes = "80100000, 80101500, 80101600, 80101601, 80101602, 80101603, 80101604, 80101605, 80101606, 80101607, 80101700, 80101702, 80101703, 80101704, 80101706, 80111500, 80171500, 80171501, 80171502, 80171503, 80171504, 80171505, 80171900, 80171902, 80171903, 80171904, 80171905, 80171906, 80171907, 80171908, 80171909, 80172000, 80172001, 80172002, 80172003, 80172100, 80172101, 80172102, 80172103, 80172104, 81111500, 81111501, 81111502, 81111503, 81111504, 81111505, 81111506, 81111507, 81111508, 81111509, 81111510, 81111511, 81111512, 81111700, 81111701, 81111702, 81111703, 81111704, 81111705, 81111706, 81111707, 81111708, 81111709, 81120000, 81121500, 81121501, 81121502, 81121503, 81121504, 81121505, 84110000, 84111500, 84111600, 84111700, 84111800"
-        checked_codes = ["80100000", "81111500", "81111700"]
+        checked_codes = ["80100000", "81111500", "81111700", "80111500", "81111800", "80172100", "80172000", "80171900", "80171500", "81121500", "84110000"]
         input_element = wait.until(EC.visibility_of_element_located((By.CLASS_NAME, "unspsc-filter-textbox")))
         input_element.send_keys(filter_codes)
         
@@ -65,7 +72,7 @@ class UNGMSpider(scrapy.Spider):
             label_element = input.find_element(By.XPATH, "./following-sibling::label")
             span_text = label_element.find_element(By.CSS_SELECTOR, "span:nth-of-type(1)").text
             print(span_text)
-            if span_text in checked_codes:
+            if span_text in map(str, self.numbers):
                 input.click()
             
         time.sleep(2)  

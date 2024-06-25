@@ -1,5 +1,6 @@
 import subprocess
 import os
+import json 
 from flask_cors import CORS
 from flask import Flask, send_file, request, jsonify
 import pandas as pd
@@ -53,17 +54,20 @@ def download_csv(value):
     
 @app.route('/run-scriptungm', methods=['POST'])
 def run_spider_ungm():
-    command = ['scrapy', 'crawl', 'ungm_spider']
+    numbers = request.json.get('selectedNumbers', [])
+    print("Received numbers:", numbers)
+    command = ['scrapy', 'crawl', 'ungm_spider', '-a', f'numbers={json.dumps(numbers)}']
     working_dir = 'C:/Users/aayme/Desktop/kpmg/procurement_project'
     try:
-        result = subprocess.run(command, cwd=working_dir, capture_output=True, text=True)
+        result = subprocess.run(command, cwd=working_dir, capture_output=True, text=True, shell=True)
         if result.returncode == 0:
             file_path = 'C:/Users/aayme/Desktop/kpmg/procurement_project/ungm.xlsx'
             return send_file(file_path, as_attachment=True, download_name='ungm.xlsx')
         else:
-            return jsonify({"status": "error", "message": result.stderr.decode()}), 500
+            return jsonify({"status": "error", "message": result.stderr}), 500
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+
 
     
 def process_csv(file_path, region):
