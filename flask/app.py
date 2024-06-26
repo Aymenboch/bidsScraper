@@ -40,7 +40,7 @@ def run_spider_wb():
 def download_csv(value):
     print(value)
     if value == 'wb':
-        file_path = 'C:/Users/aayme/Desktop/kpmg/flask/worldbank.xlsx'
+        file_path = 'C:/Users/aayme/Desktop/kpmg/results/worldbank.xlsx'
     else:
         file_path = 'C:/Users/aayme/Desktop/kpmg/procurement_project/ungm.xlsx'
 
@@ -55,8 +55,10 @@ def download_csv(value):
 @app.route('/run-scriptungm', methods=['POST'])
 def run_spider_ungm():
     numbers = request.json.get('selectedNumbers', [])
+    region = request.json.get('region')
     print("Received numbers:", numbers)
-    command = ['scrapy', 'crawl', 'ungm_spider', '-a', f'numbers={json.dumps(numbers)}']
+    print("Region:", region)
+    command = ['scrapy', 'crawl', 'ungm_spider', '-a', f'numbers={json.dumps(numbers)}' , '-a', f'region={json.dumps(region)}' ]
     working_dir = 'C:/Users/aayme/Desktop/kpmg/procurement_project'
     try:
         result = subprocess.run(command, cwd=working_dir, capture_output=True, text=True, shell=True)
@@ -73,11 +75,11 @@ def run_spider_ungm():
 def process_csv(file_path, region):
     try:
         # Load the CSV into a DataFrame
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(file_path, dtype={'link': str})
         print("DataFrame loaded, first few rows:\n", df.head())
         print("DataFrame shape:", df.shape)
         print("Columns:", df.columns)
-
+        df['link'] = df['link'].apply(lambda x: x[:-10] + x[-10:].upper())
         # Normalize and clean data
         df['notice_type'] = df['notice_type'].str.strip().str.capitalize()
         df['region'] = df['region'].str.strip().str.capitalize()
@@ -125,7 +127,7 @@ def process_csv(file_path, region):
         print("Shape after excluding 'non-consulting':", filtered_df.shape)
 
         # Save to Excel
-        excel_path = 'worldbank.xlsx'
+        excel_path = 'C:/Users/aayme/Desktop/kpmg/results/worldbank.xlsx'
         filtered_df.to_excel(excel_path, index=False, engine='openpyxl')
         print("Excel file saved to:", excel_path)
 

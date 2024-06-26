@@ -7,6 +7,7 @@ class ProcurementItem(scrapy.Item):
     notice_date = scrapy.Field()
     bid_description = scrapy.Field()
     sector_description = scrapy.Field()
+    link = scrapy.Field()
     
 class NoticeItem(scrapy.Item):
     Project_Title = scrapy.Field()
@@ -15,3 +16,4 @@ class NoticeItem(scrapy.Item):
     Publish_Date = scrapy.Field()
     Deadline = scrapy.Field()
     Detail = scrapy.Field()
+    Link = scrapy.Field()

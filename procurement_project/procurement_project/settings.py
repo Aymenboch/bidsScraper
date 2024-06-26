@@ -2,7 +2,12 @@ ITEM_PIPELINES = {
    'procurement_project.pipelines.ProcurementProjectPipeline': 300,
    'procurement_project.pipelines.ExcelExportPipeline': 301,
 }
-
+FEEDS = {
+    'output.csv': {
+        'format': 'csv',
+        'overwrite': True
+    }
+}
 BOT_NAME = 'procurement_project'
 LOG_LEVEL = 'DEBUG'
 SPIDER_MODULES = ['procurement_project.spiders']

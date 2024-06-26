@@ -16,9 +16,21 @@ class UNGMSpider(scrapy.Spider):
     name = 'ungm_spider'
     allowed_domains = ['ungm.org']
     start_urls = ['https://www.ungm.org/Public/Notice']
-    LOG_LEVEL = 'DEBUG'    
+    Africa = [
+            "Multiple destinations (see 'Countries' tab below)","Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi",
+            "Cape Verde", "Cameroon", "Central African Republic", "Chad", "Comoros",
+            "Congo", "Democratic Republic of Congo", "Djibouti", "Egypt", 
+            "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon",
+            "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast",
+            "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi",
+            "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique",
+            "Namibia", "Niger", "Nigeria", "Rwanda", "São Tomé and Príncipe",
+            "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa",
+            "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda",
+            "Zambia", "Zimbabwe"
+        ]  
 
-    def __init__(self, numbers, *args, **kwargs):
+    def __init__(self, numbers, region, *args, **kwargs):
         super(UNGMSpider, self).__init__(*args, **kwargs)
         options = Options()
         options.add_argument('log-level=1')
@@ -26,8 +38,10 @@ class UNGMSpider(scrapy.Spider):
         self.driver = webdriver.Chrome(service=service, options=options)
         try:
             self.numbers = json.loads(numbers)
+            self.region = json.loads(region)
         except json.JSONDecodeError:
             self.numbers = []
+            self.region = []
         
         self.BASE_URL = "https://www.ungm.org"
     custom_settings = {
@@ -38,20 +52,30 @@ class UNGMSpider(scrapy.Spider):
 
 
     def scroll_down(self):
-        print("Parsed numbers:", self.numbers)
-        i = 0
         last_height = self.driver.execute_script("return document.body.scrollHeight")
-        while i < 4:
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
+        while True:
+            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")  # Scroll down to the bottom.
+            time.sleep(2)  # Wait for the page to load.
+            # Check if the scroll has reached the bottom of the page.
             new_height = self.driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
-                break
-            last_height = new_height
-            i += 1
+                break  # If the height hasn't changed, assume end of the page.
+            last_height = new_height  # Update the last height to the new height.
+            try:
+                end_of_content = self.driver.find_element_by_xpath("//div[@class='no-more-content']")
+                if end_of_content:
+                    print("Reached the end of the content.")
+                    break
+            except Exception as e:
+                continue  # If the element is not found, continue scrolling.
+
 
     def parse(self, response):
+        regionsfilter = False
         self.driver.get(response.url)
+        if(self.region == "Africa"):
+            regionsfilter = True
+            
         checkboxes = ['#RequestForProposal', '#RequestForPreQualification', '#InvitationToBid', '#NotSet', '#RequestForEoi', 
                       '#RequestForQuotation', '#RequestForInformation', '#GrantSupportCallForProposal', '#PreBidNotice', '#IndividualConsultant']
         for checkbox in checkboxes:
@@ -75,10 +99,10 @@ class UNGMSpider(scrapy.Spider):
             if span_text in map(str, self.numbers):
                 input.click()
             
-        time.sleep(2)  
+        
         popup.find_element(By.CLASS_NAME, "unspsc-action-submit").click()
         self.driver.find_element(By.ID, "lnkSearch").click()
-        time.sleep(2)  
+        time.sleep(1)  
         self.scroll_down()
 
         # Processing offers
@@ -115,13 +139,15 @@ class UNGMSpider(scrapy.Spider):
             
                         item['Project_Title'] = project_title
                         item['Country'] = descriptions[1] if len(descriptions) > 1 else "N/A"
+                        if self.region == "Africa" and item['Country'] not in self.Africa:
+                            continue     
                         item['Registration_Level'] = descriptions[2] if len(descriptions) > 2 else "N/A"
                         item['Publish_Date'] = descriptions[3] if len(descriptions) > 3 else "N/A"
                         item['Deadline'] = descriptions[4] if len(descriptions) > 4 else "N/A"
                         item['Detail'] = details
-
+                        item['Link'] = full_link 
                         yield item
-                        time.sleep(2)
+                        time.sleep(1)
 
     def closed(self, reason):
         self.driver.quit()

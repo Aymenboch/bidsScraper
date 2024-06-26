@@ -10,14 +10,19 @@ class ProcurementSpider(Spider):
     def __init__(self, number, *args, **kwargs):
         super(ProcurementSpider, self).__init__(*args, **kwargs)
         self.number = number  # Save the passed number
+        self.item_url = "https://projects.worldbank.org/en/projects-operations/procurement-detail/"
         self.start_urls = [
             f'https://search.worldbank.org/api/v2/procnotices?format=json&fct=procurement_group_desc_exact,notice_type_exact,procurement_method_code_exact,procurement_method_name_exact,project_ctry_code_exact,project_ctry_name_exact,regionname_exact,rregioncode,project_id,sector_exact,sectorcode_exact&fl=id,bid_description,project_ctry_name,project_name,notice_type,notice_status,notice_lang_name,submission_date,noticedate&srt=submission_date%20desc,id%20asc&apilang=en&rows={self.number}&srce=both&os=0'
         ]
     custom_settings = {
-        'FEED_EXPORT_FIELDS': ['project_name', 'notice_type', 'region', 'notice_date', 'bid_description', 'sector_description'],
+        'FEED_EXPORT_FIELDS': ['project_name', 'notice_type', 'region', 'notice_date', 'bid_description', 'sector_description', 'link'],
         'ITEM_PIPELINES': {
             'procurement_project.pipelines.ProcurementProjectPipeline': 300,
-        }
+        },
+        'output.csv': {
+            'format': 'csv',
+            'overwrite': True
+        },
     }
     headers = {
         "Accept": "application/json, text/plain, */*",
@@ -53,12 +58,13 @@ class ProcurementSpider(Spider):
             return  # Exit if no data is found
         
         item = ProcurementItem()
+        item_id = str(item_data.get('id')).upper() 
         item['project_name'] = item_data.get('project_name', 'none')
         item['notice_type'] = item_data.get('notice_type', 'none')
         item['region'] = item_data.get('regionname', 'none')
         item['notice_date'] = item_data.get('noticedate', 'none')
+        item['link'] = self.item_url + item_id
         item['bid_description'] = item_data.get('bid_description', 'none')
-        
         sectors = item_data.get('sector', [])
         item['sector_description'] = [sector.get('sector_description', 'none') for sector in sectors]
         
