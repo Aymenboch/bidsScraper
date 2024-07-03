@@ -13,7 +13,6 @@ Insightful Bids is a dynamic web application designed to automate and streamline
 - **Frontend**: React
 - **Backend**: Flask
 - **Data Scraping**: Scrapy
-- **Database**: NA
 
 ## Getting Started
 
@@ -34,18 +33,23 @@ You will need to install the following software:
    git clone https://yourrepositoryurl.git
    cd yourrepositoryname
 2. **Set up the Python virtual environment**
+   ```bash
    python -m venv venv
    source venv/bin/activate  # On Mac/Linux
    .\venv\Scripts\activate   # On Windows
 3. **Install Python dependencies**
+   ```bash
    pip install -r requirements.txt
 4. **Install Node dependencies**
+   ```bash
    cd bids
    npm install
 5. **Start the backend server**
+   ```bash
    cd ../flask
    python app.py
 6. **Run the React application**
+    ```bash
    cd ../bids
    npm start
 
