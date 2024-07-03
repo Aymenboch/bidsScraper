@@ -41,7 +41,7 @@ def run_spider_wb():
 def download_csv(value):
     print(value)
     if value == 'wb':
-        file_path = 'C:/Users/aayme/Desktop/kpmg/results/worldbank.xlsx'
+        file_path = 'C:/Users/aayme/Desktop/kpmg/flask/worldbank.xlsx'
     else:
         file_path = 'C:/Users/aayme/Desktop/kpmg/procurement_project/ungm.xlsx'
 
@@ -130,7 +130,7 @@ def process_csv(file_path, region):
         print("Shape after excluding 'non-consulting':", filtered_df.shape)
 
         # Save to Excel
-        excel_path = 'C:/Users/aayme/Desktop/kpmg/results/worldbank.xlsx'
+        excel_path = 'C:/Users/aayme/Desktop/kpmg/flask/worldbank.xlsx'
         filtered_df.to_excel(excel_path, index=False, engine='openpyxl')
         print("Excel file saved to:", excel_path)
 
