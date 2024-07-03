@@ -13,16 +13,66 @@ Insightful Bids is a dynamic web application designed to automate and streamline
 - **Frontend**: React
 - **Backend**: Flask
 - **Data Scraping**: Scrapy
-- **Database**: NA
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+These instructions will guide you through getting a copy of the project up and running on your local machine for development and testing purposes.
 
 ### Prerequisites
 
-What things you need to install the software and how to install them:
-```bash
-node.js - Download and install from https://nodejs.org/
-python - Download and install from https://python.org/
-pip - Usually comes with Python
+You will need to install the following software:
+
+- **Node.js**: Download and install from [Node.js official website](https://nodejs.org/)
+- **Python**: Download and install from [Python.org](https://python.org/)
+- **pip**: Usually comes with Python installation
+
+### Installation
+
+1. **Clone the repository**
+   
+   ```bash
+   git clone https://yourrepositoryurl.git
+   cd yourrepositoryname
+   
+2. **Set up the Python virtual environment**
+   
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Mac/Linux
+   .\venv\Scripts\activate   # On Windows
+   
+3. **Install Python dependencies**
+   
+   ```bash
+   pip install -r requirements.txt
+   
+4. **Install Node dependencies**
+   
+   ```bash
+   cd bids
+   npm install
+   
+5. **Start the backend server**
+   
+   ```bash
+   cd ../flask
+   python app.py
+   
+6. **Run the React application**
+   
+    ```bash
+   cd ../bids
+   npm start
+
+### Configuration
+
+Ensure that any required environment variables and configuration settings are properly set up according to your local environment and security guidelines.
+
+### Contributing
+
+If you wish to contribute to the project, please fork the repository and submit a pull request.
+
+### License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+
