@@ -29,30 +29,50 @@ You will need to install the following software:
 ### Installation
 
 1. **Clone the repository**
+   
    ```bash
    git clone https://yourrepositoryurl.git
    cd yourrepositoryname
+   
 2. **Set up the Python virtual environment**
+   
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Mac/Linux
    .\venv\Scripts\activate   # On Windows
+   
 3. **Install Python dependencies**
+   
    ```bash
    pip install -r requirements.txt
+   
 4. **Install Node dependencies**
+   
    ```bash
    cd bids
    npm install
+   
 5. **Start the backend server**
+   
    ```bash
    cd ../flask
    python app.py
+   
 6. **Run the React application**
+   
     ```bash
    cd ../bids
    npm start
 
+### Configuration
 
+Ensure that any required environment variables and configuration settings are properly set up according to your local environment and security guidelines.
+
+### Contributing
+
+If you wish to contribute to the project, please fork the repository and submit a pull request.
+
+### License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 
