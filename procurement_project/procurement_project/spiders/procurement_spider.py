@@ -61,7 +61,7 @@ class ProcurementSpider(Spider):
         item_id = str(item_data.get('id')).upper() 
         item['project_name'] = item_data.get('project_name', 'none')
         item['notice_type'] = item_data.get('notice_type', 'none')
-        item['region'] = item_data.get('regionname', 'none')
+        item['region'] = item_data.get('contact_ctry_name', 'none')
         item['notice_date'] = item_data.get('noticedate', 'none')
         item['link'] = self.item_url + item_id
         item['bid_description'] = item_data.get('bid_description', 'none')

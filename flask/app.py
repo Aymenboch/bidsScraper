@@ -1,6 +1,7 @@
 import subprocess
 import os
 import json 
+import re
 from flask_cors import CORS
 from flask import Flask, send_file, request, jsonify
 import pandas as pd
@@ -18,7 +19,7 @@ CORS(app)
 def run_spider_wb():
     try:
         number = request.json.get('number')
-        region = request.json.get('region')
+        region = request.json.get('selectedregion')
         print(number)
         print(region)
         command = ['scrapy', 'crawl', 'worldbank', '-o', 'output.csv', '-a', f'number={number}']
@@ -26,7 +27,7 @@ def run_spider_wb():
         result = subprocess.run(command, cwd=working_dir, capture_output=True, text=True)
 
         if result.returncode == 0:
-            processed_file = process_csv(f"{working_dir}/output.csv", region)
+            processed_file = process_csv(f"{working_dir}/output.csv", json.dumps(region))
             if isinstance(processed_file, str) and processed_file.endswith('.xlsx'):
                 return send_file(processed_file, as_attachment=True)
             else:
@@ -55,7 +56,7 @@ def download_csv(value):
 @app.route('/run-scriptungm', methods=['POST'])
 def run_spider_ungm():
     numbers = request.json.get('selectedNumbers', [])
-    region = request.json.get('region')
+    region = request.json.get('selectedregion', [])
     print("Received numbers:", numbers)
     print("Region:", region)
     command = ['scrapy', 'crawl', 'ungm_spider', '-a', f'numbers={json.dumps(numbers)}' , '-a', f'region={json.dumps(region)}' ]
@@ -76,6 +77,7 @@ def process_csv(file_path, region):
     try:
         # Load the CSV into a DataFrame
         df = pd.read_csv(file_path, dtype={'link': str})
+        region_list = json.loads(region)
         print("DataFrame loaded, first few rows:\n", df.head())
         print("DataFrame shape:", df.shape)
         print("Columns:", df.columns)
@@ -118,8 +120,9 @@ def process_csv(file_path, region):
         filtered_df = filtered_df[filtered_df['notice_type'].isin(notice_types)]
         print("Shape after notice type filtering:", filtered_df.shape)
 
-        # Filter by region containing 'Africa'
-        filtered_df = filtered_df[filtered_df['region'].str.contains(region, case=False, na=False)]
+        # Filter by country
+        region_pattern = '|'.join(re.escape(region) for region in region_list)
+        filtered_df = filtered_df[filtered_df['region'].str.contains(region_pattern, case=False, na=False)]
         print("Shape after region filtering:", filtered_df.shape)
 
         # Exclude entries with 'non-consulting' in 'bid_description'

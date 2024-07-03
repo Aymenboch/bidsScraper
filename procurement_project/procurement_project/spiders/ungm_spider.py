@@ -16,19 +16,6 @@ class UNGMSpider(scrapy.Spider):
     name = 'ungm_spider'
     allowed_domains = ['ungm.org']
     start_urls = ['https://www.ungm.org/Public/Notice']
-    Africa = [
-            "Multiple destinations (see 'Countries' tab below)","Algeria", "Angola", "Benin", "Botswana", "Burkina Faso", "Burundi",
-            "Cape Verde", "Cameroon", "Central African Republic", "Chad", "Comoros",
-            "Congo", "Democratic Republic of Congo", "Djibouti", "Egypt", 
-            "Equatorial Guinea", "Eritrea", "Eswatini", "Ethiopia", "Gabon",
-            "Gambia", "Ghana", "Guinea", "Guinea-Bissau", "Ivory Coast",
-            "Kenya", "Lesotho", "Liberia", "Libya", "Madagascar", "Malawi",
-            "Mali", "Mauritania", "Mauritius", "Morocco", "Mozambique",
-            "Namibia", "Niger", "Nigeria", "Rwanda", "São Tomé and Príncipe",
-            "Senegal", "Seychelles", "Sierra Leone", "Somalia", "South Africa",
-            "South Sudan", "Sudan", "Tanzania", "Togo", "Tunisia", "Uganda",
-            "Zambia", "Zimbabwe"
-        ]  
 
     def __init__(self, numbers, region, *args, **kwargs):
         super(UNGMSpider, self).__init__(*args, **kwargs)
@@ -71,10 +58,7 @@ class UNGMSpider(scrapy.Spider):
 
 
     def parse(self, response):
-        regionsfilter = False
         self.driver.get(response.url)
-        if(self.region == "Africa"):
-            regionsfilter = True
             
         checkboxes = ['#RequestForProposal', '#RequestForPreQualification', '#InvitationToBid', '#NotSet', '#RequestForEoi', 
                       '#RequestForQuotation', '#RequestForInformation', '#GrantSupportCallForProposal', '#PreBidNotice', '#IndividualConsultant']
@@ -139,7 +123,7 @@ class UNGMSpider(scrapy.Spider):
             
                         item['Project_Title'] = project_title
                         item['Country'] = descriptions[1] if len(descriptions) > 1 else "N/A"
-                        if self.region == "Africa" and item['Country'] not in self.Africa:
+                        if item['Country'] not in self.region:
                             continue     
                         item['Registration_Level'] = descriptions[2] if len(descriptions) > 2 else "N/A"
                         item['Publish_Date'] = descriptions[3] if len(descriptions) > 3 else "N/A"
